@@ -8,7 +8,7 @@ export interface ICustomError extends Error {
 
 // async handler interface
 export interface IAsyncHandlerFunc {
-  (req: Request, res: Response, next: NextFunction): Promise<undefined>;
+  (req: Request, res: Response, next: NextFunction): Promise<unknown>;
 }
 
 // user model Interface

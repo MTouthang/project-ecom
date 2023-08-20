@@ -8,6 +8,10 @@ app.get("/health-check", (_req, res) => {
   res.send("Health status - all good");
 });
 
+// Route --
+import authRoutes from "@/routes/auth.route";
+app.use("/user", authRoutes);
+
 // catch all 404 route
 app.all("*", (_req, res) => {
   res.send("Oops !!, 404 Not Found");
