@@ -1,5 +1,8 @@
 import express from "express";
 import { config } from "dotenv";
+import morgan from "morgan";
+import cors from "cors";
+import cookiePasrser from "cookie-parser";
 config();
 
 const app = express();
@@ -11,5 +14,10 @@ app.use(
     extended: true,
   }),
 );
+
+// third party middleware
+app.use(cookiePasrser());
+app.use(cors());
+app.use(morgan("dev"));
 
 export default app;
