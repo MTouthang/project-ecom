@@ -24,9 +24,11 @@ export const registerUser = asyncHandler(
     const user = await User.create({
       firstName,
       lastName,
+      email,
       password,
       phoneNumber,
       avatar: {
+        public_id: email,
         secure_url:
           "https://res.cloudinary.com/ddvlwqjuy/image/upload/v1692532723/project-ecom/profile_cjhzmm.png",
       },
