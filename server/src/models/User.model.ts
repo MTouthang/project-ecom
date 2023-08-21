@@ -1,6 +1,6 @@
 import { InferSchemaType, Schema, model } from "mongoose";
-import { IUser } from "@/types";
-import { roleList } from "@/configs/roleList.config";
+import { IUser } from "../types";
+import { roleList } from "../configs/roleList.config";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";

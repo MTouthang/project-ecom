@@ -1,4 +1,4 @@
-import { ICustomError } from "@/types";
+import { ICustomError } from "../types";
 
 class CustomError extends Error implements ICustomError {
   constructor(

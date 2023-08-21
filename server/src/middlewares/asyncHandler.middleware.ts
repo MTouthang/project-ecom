@@ -1,4 +1,4 @@
-import { IAsyncHandlerFunc } from "@/types";
+import { IAsyncHandlerFunc } from "../types";
 
 import { Request, Response, NextFunction } from "express";
 

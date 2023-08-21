@@ -9,7 +9,7 @@ app.get("/health-check", (_req, res) => {
 });
 
 // Route --
-import authRoutes from "@/routes/auth.route";
+import authRoutes from ".//routes/auth.route";
 app.use("/user", authRoutes);
 
 // catch all 404 route

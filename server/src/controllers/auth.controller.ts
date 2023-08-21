@@ -1,7 +1,7 @@
 import { Response, Request, NextFunction } from "express";
-import asyncHandler from "@/middlewares/asyncHandler.middleware";
-import User from "@/models/User.model";
-import CustomError from "@/utils/customError.utils";
+import asyncHandler from "../middlewares/asyncHandler.middleware";
+import User from "../models/User.model";
+import CustomError from "../utils/customError.utils";
 
 const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
