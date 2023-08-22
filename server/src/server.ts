@@ -2,18 +2,21 @@ import app from "./app";
 import dbConnection from "./configs/db.config";
 
 const PORT = process.env.PORT || 500;
+const apiVersion = "/api/v1";
+
+// Route --
+import authRoutes from "./routes/auth.route";
 
 // health  check route
-app.get("/health-check", (_req, res) => {
+app.get(`${apiVersion}/health-check`, (_req, res) => {
   res.send("Health status - all good");
 });
 
-// Route --
-import authRoutes from ".//routes/auth.route";
-app.use("/user", authRoutes);
+// auth route -
+app.use(`${apiVersion}/`, authRoutes);
 
 // catch all 404 route
-app.all("*", (_req, res) => {
+app.all(`${apiVersion}/*`, (_req, res) => {
   res.send("Oops !!, 404 Not Found");
 });
 
