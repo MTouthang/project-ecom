@@ -33,3 +33,12 @@ export interface IUser {
 
   generatePasswordResetToken(): string;
 }
+
+// error return object interface
+export interface IErrorObject {
+  statusCode: number;
+  success: boolean;
+  message: string;
+  data: null;
+  stack?: string;
+}

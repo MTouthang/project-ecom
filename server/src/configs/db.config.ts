@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-mongoose.set("strictQuery", true);
+// mongoose.set("strictQuery", true);
 mongoose.set("runValidators", true); // run validation during update
 
 const dbConnection = async () => {

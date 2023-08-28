@@ -2,7 +2,8 @@ import express from "express";
 import { config } from "dotenv";
 import morgan from "morgan";
 import cors from "cors";
-import cookiePasrser from "cookie-parser";
+import cookieParser from "cookie-parser";
+
 config();
 
 const app = express();
@@ -16,8 +17,30 @@ app.use(
 );
 
 // third party middleware
-app.use(cookiePasrser());
+app.use(cookieParser());
 app.use(cors());
 app.use(morgan("dev"));
+
+const apiVersion = "/api/v1";
+
+// Route --
+import authRoutes from "./routes/auth.route";
+import errorHandler from "./middlewares/errorHandler.middleware";
+
+// health  check route
+app.get(`${apiVersion}/health-check`, (_req, res) => {
+  res.send("Health status - all good");
+});
+
+// auth route -
+// error handler
+app.use(`${apiVersion}`, authRoutes);
+
+// catch all 404 route
+app.all(`${apiVersion}/*`, (_req, res) => {
+  res.send("Oops !!, 404 Not Found");
+});
+
+app.use(errorHandler);
 
 export default app;
