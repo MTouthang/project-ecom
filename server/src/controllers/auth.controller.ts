@@ -20,61 +20,49 @@ export const registerUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { firstName, lastName, email, password, phoneNumber } = req.body;
 
-    if (!email) {
-      return next(new CustomError("email missing", 404));
-    }
-
-    const isPresent = await User.findOne({ email: email }).lean();
-
-    if (isPresent) {
-      return next(new CustomError("User already present!", 404));
-    }
-
-    interface IUser {
-      firstName?: string;
-      lastName?: string;
-      email?: string;
-      password?: string;
-      phoneNumber?: string;
-      avatar?: object;
-    }
     // check for missing fields
-    const userDetails: IUser = {
-      firstName,
-      lastName,
-      email,
-      password,
-      phoneNumber,
-      avatar: {
-        public_id: email,
-        secure_url:
-          "https://res.cloudinary.com/ddvlwqjuy/image/upload/v1692532723/project-ecom/profile_cjhzmm.png",
-      },
-    };
     const requiredFields: string[] = [
       "firstName",
-      "lastName",
       "email",
       "password",
       "phoneNumber",
-      "avatar",
     ];
-
-    const missingField: string[] = requiredFields.filter(
-      (field: string) => !userDetails[field as keyof IUser],
-    );
-    if (missingField.length <= 0) {
-      const fieldRequired: string = missingField[0];
-      return next(new CustomError(`Missing Field - ${fieldRequired}`, 400));
-    }
-
     const userExist = await User.findOne({ email }).lean();
+
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      const errorMessage = `Missing required fields: ${missingFields.join(
+        ", ",
+      )}`;
+      return next(new CustomError(errorMessage, 400));
+    }
 
     if (userExist) {
       return next(
         new CustomError("User with provided email already exist!", 409),
       );
     }
+    interface IUserDetails {
+      firstName: string;
+      lastName: string;
+      email: string;
+      avatar: object;
+      password: string;
+      phoneNumber: string;
+    }
+    const userDetails: IUserDetails = {
+      firstName,
+      lastName,
+      email,
+      avatar: {
+        public_id: email,
+        secure_url:
+          "https://res.cloudinary.com/ddvlwqjuy/image/upload/v1692532723/project-ecom/profile_cjhzmm.png",
+      },
+      password,
+      phoneNumber,
+    };
 
     const user = new User(userDetails);
 
