@@ -150,3 +150,8 @@ export const loginUser = asyncHandler(
     });
   },
 );
+
+// logout use
+// forgot password
+// reset password
+// generate refresh token (optional)
