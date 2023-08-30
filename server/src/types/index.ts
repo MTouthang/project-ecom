@@ -42,3 +42,13 @@ export interface IErrorObject {
   data: null;
   stack?: string;
 }
+
+// user object interface
+export interface IUserDetails {
+  firstName: string;
+  lastName: string;
+  email: string;
+  avatar: object;
+  password: string;
+  phoneNumber: string;
+}

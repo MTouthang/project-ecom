@@ -3,10 +3,13 @@ import asyncHandler from "../middlewares/asyncHandler.middleware";
 import User from "../models/User.model";
 import CustomError from "../utils/customError.utils";
 
+import { IUserDetails } from "types";
+
 const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   httpOnly: true,
   maxAge: 7 * 24 * 60 * 60 * 1000,
+  sameSite: "none",
 };
 
 /**
@@ -27,7 +30,6 @@ export const registerUser = asyncHandler(
       "password",
       "phoneNumber",
     ];
-    const userExist = await User.findOne({ email }).lean();
 
     const missingFields = requiredFields.filter((field) => !req.body[field]);
 
@@ -38,19 +40,14 @@ export const registerUser = asyncHandler(
       return next(new CustomError(errorMessage, 400));
     }
 
+    // check for user exist
+    const userExist = await User.findOne({ email }).lean();
     if (userExist) {
       return next(
         new CustomError("User with provided email already exist!", 409),
       );
     }
-    interface IUserDetails {
-      firstName: string;
-      lastName: string;
-      email: string;
-      avatar: object;
-      password: string;
-      phoneNumber: string;
-    }
+
     const userDetails: IUserDetails = {
       firstName,
       lastName,
@@ -64,6 +61,7 @@ export const registerUser = asyncHandler(
       phoneNumber,
     };
 
+    // create user mongodb object
     const user = new User(userDetails);
 
     if (!user) {
@@ -72,6 +70,7 @@ export const registerUser = asyncHandler(
       );
     }
 
+    //  save user object to the database
     const userData = await user.save();
 
     if (!userData) {
@@ -83,7 +82,12 @@ export const registerUser = asyncHandler(
 
     const accessToken = await user.generateAccessToken();
 
-    res.cookie("token", accessToken, cookieOption);
+    res.cookie("token", accessToken, {
+      secure: process.env.NODE_ENV === "production" ? true : false,
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "none",
+    });
 
     res.status(201).json({
       success: true,
@@ -100,12 +104,49 @@ export const registerUser = asyncHandler(
  * @return access token and user logged in successfully message
  * @ACCESS public
  */
-// export const loginUser = asyncHandler(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     const { email, password } = req.body;
 
-//     if (!email) {
-//       return next(new CustomError(""));
-//     }
-//   },
-// );
+export const loginUser = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = req.body;
+
+    // handle missing field
+    if (!email) {
+      return next(new CustomError("Email should be provided", 400));
+    }
+
+    if (!password) {
+      return next(new CustomError("Password is missing", 400));
+    }
+
+    // check for user
+    const user = await User.findOne({ email }).select("+password");
+
+    if (!user || !(await user.comparePassword(password))) {
+      return next(
+        new CustomError(
+          "Email and password do not match or user does not exist",
+          400,
+        ),
+      );
+    }
+
+    const accessToken = await user.generateAccessToken();
+
+    // pass cookie to request body
+    res.cookie("token", accessToken, {
+      secure: process.env.NODE_ENV === "production" ? true : false,
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "none",
+    });
+
+    user.password = undefined;
+
+    return res.status(200).json({
+      success: true,
+      message: "login successful",
+      accessToken,
+      user,
+    });
+  },
+);

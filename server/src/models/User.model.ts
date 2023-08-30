@@ -35,6 +35,7 @@ const userSchema = new Schema<IUser>(
       unique: true,
       minlength: [10, "Phone number cannot be less than 10 digits"],
       maxlength: [15, "Phone number cannot be more than 15 digits"],
+      required: [true, "Phone number should be provided!"],
     },
 
     password: {
