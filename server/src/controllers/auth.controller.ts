@@ -151,6 +151,26 @@ export const loginUser = asyncHandler(
   },
 );
 
+/**
+ * @LOGOUT
+ * @POST api/v1/user/logout
+ * @return Logged out successfully
+ * @access public
+ */
+export const userLogout = asyncHandler(async (_req: Request, res: Response) => {
+  res
+    .cookie("accessToken", null, {
+      // expires: new Date(Date.now()),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production" ? true : false,
+      maxAge: 1,
+    })
+    .json({
+      success: true,
+      message: "Logged out successfully",
+    });
+});
+// TODO:
 // logout use
 // forgot password
 // reset password
