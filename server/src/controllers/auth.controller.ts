@@ -5,13 +5,6 @@ import CustomError from "../utils/customError.utils";
 
 import { IUserDetails } from "types";
 
-const cookieOption = {
-  secure: process.env.NODE_ENV === "production" ? true : false,
-  httpOnly: true,
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-  sameSite: "none",
-};
-
 /**
  * @REGISTRATION
  * @ROUTE @POST {{URL}}/api/v1/user/new
