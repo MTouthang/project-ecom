@@ -163,8 +163,11 @@ export const userLogout = asyncHandler(async (_req: Request, res: Response) => {
       message: "Logged out successfully",
     });
 });
+
 // TODO:
-// logout use
 // forgot password
 // reset password
+// mail setup
 // generate refresh token (optional)
+// check auth route
+//
