@@ -6,7 +6,8 @@ export const mailHelper = async (
   message: string,
 ) => {
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST, // hostname
+    // host: process.env.SMTP_HOST, // hostname
+    service: process.env.STMP_SERVICE,
     secure: false, // TLS requires secureConnection to be false
     port: 587, // port for secure SMTP
     auth: {
