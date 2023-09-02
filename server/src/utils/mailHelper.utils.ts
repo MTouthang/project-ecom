@@ -1,17 +1,5 @@
 import nodemailer from "nodemailer";
 
-// export const transporter = nodemailer.createTransport({
-//     host: "smtp.forwardemail.net",
-//   port: 465,
-//   secure: false,
-//   secureConnection: false,
-//   auth: {
-//     // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-//     user: "",
-//     pass: "",
-//   },
-// });
-
 export const mailHelper = async (
   user: string,
   subject: string,
@@ -28,7 +16,7 @@ export const mailHelper = async (
   });
 
   const mailOption = await transporter.sendMail({
-    from: "",
+    from: process.env.SMTP_Mail,
     to: user,
     subject: subject,
     text: message,
