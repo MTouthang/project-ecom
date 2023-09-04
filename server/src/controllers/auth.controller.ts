@@ -4,6 +4,7 @@ import User from "../models/User.model";
 import CustomError from "../utils/customError.utils";
 
 import { IUserDetails } from "types";
+import { mailHelper } from "../utils/mailHelper.utils";
 
 /**
  * @REGISTRATION
@@ -74,6 +75,12 @@ export const registerUser = asyncHandler(
     userData.password = undefined;
 
     const accessToken = await user.generateAccessToken();
+
+    // send mail
+    const message: string = "Thank you for registering to our application!";
+    const subject: string = `Greeting ${userData.firstName}`;
+    // TODO:- fix google invalid username and password, make sure mail is send
+    await mailHelper(userData.email, subject, message);
 
     res.cookie("token", accessToken, {
       secure: process.env.NODE_ENV === "production" ? true : false,

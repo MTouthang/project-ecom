@@ -7,7 +7,7 @@ export const mailHelper = async (
 ) => {
   const transporter = nodemailer.createTransport({
     // host: process.env.SMTP_HOST, // hostname
-    service: process.env.STMP_SERVICE,
+    service: process.env.SMTP_SERVICE,
     secure: false, // TLS requires secureConnection to be false
     port: 587, // port for secure SMTP
     auth: {
@@ -17,7 +17,7 @@ export const mailHelper = async (
   });
 
   const mailOption = await transporter.sendMail({
-    from: process.env.SMTP_Mail,
+    from: process.env.SMTP_MAIL,
     to: user,
     subject: subject,
     text: message,
