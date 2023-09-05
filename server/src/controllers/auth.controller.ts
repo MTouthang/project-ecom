@@ -79,7 +79,9 @@ export const registerUser = asyncHandler(
     // send mail
     const message: string = "Thank you for registering to our application!";
     const subject: string = `Greeting ${userData.firstName}`;
-    // TODO:- fix google invalid username and password, make sure mail is send
+    // TODO:-validate email through mail otp before that user account should be inactive
+
+    // send greetings
     await mailHelper(userData.email, subject, message);
 
     res.cookie("token", accessToken, {
@@ -170,6 +172,67 @@ export const userLogout = asyncHandler(async (_req: Request, res: Response) => {
       message: "Logged out successfully",
     });
 });
+
+/**
+ * @FORGOTPASSWORD
+ * @POST api/v1/user/forgotpassword
+ * @return password change successfully
+ */
+export const forgotPassword = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email } = req.body;
+
+    if (!email) {
+      return next(new CustomError("Email should be provided", 400));
+    }
+
+    const userData = await User.findOne({ email });
+
+    if (!userData) {
+      return next(
+        new CustomError(
+          `User not available for the provided email - ${email}`,
+          404,
+        ),
+      );
+    }
+
+    //TODO: test mail sender
+
+    // generate random reset password token
+    const resetPasswordToken: string = userData.generatePasswordResetToken();
+    await userData.save();
+
+    // password url token
+    const resetPasswordUrl = `${req.protocol}://${req.get(
+      "host",
+    )}/api/v1/user/resetpassword/${resetPasswordToken}`;
+
+    // create mail and send
+    const subject: string = "Password Reset";
+    const message: string = `Here is your password reset token ${resetPasswordToken}`;
+
+    try {
+      await mailHelper(email, subject, message);
+      res.status(200).json({
+        success: true,
+        message: `Password reset token send to ${email} successfully`,
+      });
+    } catch (error: any) {
+      userData.resetPasswordExpiry = undefined;
+      userData.resetPasswordToken = undefined;
+    }
+
+    await userData.save();
+
+    return next(
+      new AppErr(
+        error.message || "Something went wrong, please try again.",
+        400,
+      ),
+    );
+  },
+);
 
 // TODO:
 // forgot password
