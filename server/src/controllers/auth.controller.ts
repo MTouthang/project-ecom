@@ -255,8 +255,6 @@ export const resetPassword = asyncHandler(
       .update(token)
       .digest("hex");
 
-    console.log("resetPasswordToken ----", resetPasswordToken);
-
     const user = await User.findOne({
       resetPasswordToken,
       resetPasswordExpiry: { $gt: Date.now() },
@@ -275,16 +273,31 @@ export const resetPassword = asyncHandler(
     user.resetPasswordExpiry = undefined;
 
     await user.save();
+    const email: string = user.email;
+    const subject: string = "Password Changed Successfully ";
+    const message: string = "Your Password has been changed Successfully ";
+    let isMailSend: boolean = false;
+    try {
+      await mailHelper(email, subject, message);
+      isMailSend = true;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      isMailSend = false;
+    }
 
     res.status(200).json({
       success: true,
       message: "Password updated successfully, please login",
+      email: isMailSend
+        ? "User update password sent successfully"
+        : "User failed to update password",
     });
   },
 );
 
 // TODO:
-// reset password
+// test mail update after password update
 // generate refresh token (optional)
 // check auth route
 //
