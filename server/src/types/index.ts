@@ -25,8 +25,8 @@ export interface IUser {
     secure_url: string;
   };
   addresses: Types.ObjectId[];
-  resetPasswordToken?: string;
-  resetPasswordExpiry: Date;
+  resetPasswordToken?: string | undefined;
+  resetPasswordExpiry?: Date | undefined;
 
   comparePassword(password: string): boolean;
   generateAccessToken(): string;

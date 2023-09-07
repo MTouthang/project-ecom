@@ -2,9 +2,11 @@ import { Response, Request, NextFunction } from "express";
 import asyncHandler from "../middlewares/asyncHandler.middleware";
 import User from "../models/User.model";
 import CustomError from "../utils/customError.utils";
+import crypto from "crypto";
 
-import { IUserDetails } from "types";
+import { IUser, IUserDetails } from "types";
 import { mailHelper } from "../utils/mailHelper.utils";
+import { error } from "console";
 
 /**
  * @REGISTRATION
@@ -200,17 +202,19 @@ export const forgotPassword = asyncHandler(
     //TODO: test mail sender
 
     // generate random reset password token
-    const resetPasswordToken: string = userData.generatePasswordResetToken();
+    const resetPasswordToken = await userData.generatePasswordResetToken();
     await userData.save();
 
     // password url token
-    const resetPasswordUrl = `${req.protocol}://${req.get(
+    const resetPasswordUrl: string = `${req.protocol}://${req.get(
       "host",
     )}/api/v1/user/resetpassword/${resetPasswordToken}`;
 
+    console.log("resetPasswordURL - ", resetPasswordUrl);
+
     // create mail and send
     const subject: string = "Password Reset";
-    const message: string = `Here is your password reset token ${resetPasswordToken}`;
+    const message: string = `Here is your password reset url click to reset your password ${resetPasswordUrl}`;
 
     try {
       await mailHelper(email, subject, message);
@@ -218,26 +222,69 @@ export const forgotPassword = asyncHandler(
         success: true,
         message: `Password reset token send to ${email} successfully`,
       });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       userData.resetPasswordExpiry = undefined;
       userData.resetPasswordToken = undefined;
+
+      await userData.save();
+
+      return next(
+        new CustomError(
+          error.message || "Something went wrong, please try again.",
+          400,
+        ),
+      );
     }
+  },
+);
 
-    await userData.save();
+/**
+ * @RESET_PASSWORD
+ * @ROUTE @POST
+ * @returns Password change successfully
+ * @ACCESS Public
+ */
+export const resetPassword = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { token } = req.params;
+    const { password } = req.body;
 
-    return next(
-      new AppErr(
-        error.message || "Something went wrong, please try again.",
-        400,
-      ),
-    );
+    const resetPasswordToken: string = await crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+
+    console.log("resetPasswordToken ----", resetPasswordToken);
+
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpiry: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return next(
+        new CustomError(
+          "Reset password is invalid or expired, please try again",
+          400,
+        ),
+      );
+    }
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiry = undefined;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully, please login",
+    });
   },
 );
 
 // TODO:
-// forgot password
 // reset password
-// mail setup
 // generate refresh token (optional)
 // check auth route
 //

@@ -101,11 +101,12 @@ userSchema.methods = {
   generatePasswordResetToken: async function () {
     const resetToken = crypto.randomBytes(20).toString("hex");
 
-    this.restPasswordToken = crypto
+    this.resetPasswordToken = crypto
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
-    this.resetPasswordExpiry = Date.now() + 15 * 60 * 1000;
+
+    this.resetPasswordExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
     return resetToken;
   },
 };
