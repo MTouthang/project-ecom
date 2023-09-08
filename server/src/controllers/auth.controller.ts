@@ -3,10 +3,10 @@ import asyncHandler from "../middlewares/asyncHandler.middleware";
 import User from "../models/User.model";
 import CustomError from "../utils/customError.utils";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 
-import { IUser, IUserDetails } from "types";
 import { mailHelper } from "../utils/mailHelper.utils";
-import { error } from "console";
+import { IUserDetails } from "types";
 
 /**
  * @REGISTRATION
@@ -108,7 +108,6 @@ export const registerUser = asyncHandler(
  * @return access token and user logged in successfully message
  * @ACCESS public
  */
-
 export const loginUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
@@ -210,8 +209,6 @@ export const forgotPassword = asyncHandler(
       "host",
     )}/api/v1/user/resetpassword/${resetPasswordToken}`;
 
-    console.log("resetPasswordURL - ", resetPasswordUrl);
-
     // create mail and send
     const subject: string = "Password Reset";
     const message: string = `Here is your password reset url click to reset your password ${resetPasswordUrl}`;
@@ -296,8 +293,50 @@ export const resetPassword = asyncHandler(
   },
 );
 
+/**
+ * @REFRESHTOKEN
+ * @ROUTE @POST api/v1/user/refreshtoken
+ * @returns new refresh token if token is valid
+ * @ACCESS Public
+ */
+export const refreshToken = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { token } = req.cookies;
+
+    if (!token) {
+      return next(new CustomError("Token NA, please login", 404));
+    }
+
+    const decodeToken = await jwt.verify(
+      token,
+      process.env.REFRESH_TOKEN_SECRET as string,
+    );
+
+    if (!decodeToken) {
+      return next(
+        new CustomError("Invalid token, please login and check again", 400),
+      );
+    }
+
+    // TODO: check the error user_id
+    const user = await User.findById(decodeToken.user_id);
+
+    if (!user) {
+      return next(new CustomError("Unauthorized, please login", 401));
+    }
+
+    const accessToken = await user.generateAccessToken();
+
+    res.status(200).json({
+      success: true,
+      message: "Access token refreshed successfully",
+      accessToken,
+    });
+  },
+);
+
 // TODO:
 // test mail update after password update
 // generate refresh token (optional)
 // check auth route
-//
+// Oauth route

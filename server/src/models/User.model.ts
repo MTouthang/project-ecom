@@ -98,6 +98,15 @@ userSchema.methods = {
       },
     );
   },
+
+  // generating refresh token
+  generateRefreshToken: async function () {
+    return jwt.sign(
+      { user_id: this._id, role: this.role },
+      process.env.REFRESH_TOKEN_SECRET as string,
+    );
+  },
+
   generatePasswordResetToken: async function () {
     const resetToken = crypto.randomBytes(20).toString("hex");
 
