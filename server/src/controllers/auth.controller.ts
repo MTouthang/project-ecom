@@ -3,10 +3,10 @@ import asyncHandler from "../middlewares/asyncHandler.middleware";
 import User from "../models/User.model";
 import CustomError from "../utils/customError.utils";
 import crypto from "crypto";
-import jwt from "jsonwebtoken";
+// import jwt from "jsonwebtoken";
 
 import { mailHelper } from "../utils/mailHelper.utils";
-import { IUserDetails } from "types";
+import {  IUserDetails } from "types";
 
 /**
  * @REGISTRATION
@@ -14,7 +14,7 @@ import { IUserDetails } from "types";
  * @return access token with created user data with user registered massage
  * @ACCESS public
  */
-
+// TODO: check for unique name (optional)
 export const registerUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { firstName, lastName, email, password, phoneNumber } = req.body;
@@ -75,8 +75,11 @@ export const registerUser = asyncHandler(
 
     // hide user password
     userData.password = undefined;
-
+    
+    // generate access token
     const accessToken = await user.generateAccessToken();
+    // generate refreshToken
+    // const refreshToken = await user.generateRefreshToken() optional
 
     // send mail
     const message: string = "Thank you for registering to our application!";
@@ -134,6 +137,8 @@ export const loginUser = asyncHandler(
     }
 
     const accessToken = await user.generateAccessToken();
+    // const refreshToken = await user.generateRefreshToken() (optional)
+
 
     // pass cookie to request body
     res.cookie("token", accessToken, {
@@ -198,7 +203,7 @@ export const forgotPassword = asyncHandler(
       );
     }
 
-    //TODO: test mail sender
+    
 
     // generate random reset password token
     const resetPasswordToken = await userData.generatePasswordResetToken();
@@ -292,51 +297,50 @@ export const resetPassword = asyncHandler(
     });
   },
 );
-
+// optional
 /**
  * @REFRESHTOKEN
  * @ROUTE @POST api/v1/user/refreshtoken
  * @returns new refresh token if token is valid
  * @ACCESS Public
  */
-export const refreshToken = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { token } = req.cookies;
+// export const refreshToken = asyncHandler(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     const { token } = req.cookies;
 
-    if (!token) {
-      return next(new CustomError("Token NA, please login", 404));
-    }
+//     if (!token) {
+//       return next(new CustomError("Token NA, please login", 404));
+//     }
 
-    const decodeToken = await jwt.verify(
-      token,
-      process.env.REFRESH_TOKEN_SECRET as string,
-    );
+//     const decodeToken = (await jwt.verify(
+//       token,
+//       process.env.REFRESH_TOKEN_SECRET as string,
+//     )) as IDecodedJwtPayload;
 
-    if (!decodeToken) {
-      return next(
-        new CustomError("Invalid token, please login and check again", 400),
-      );
-    }
+//     if (!decodeToken) {
+//       return next(
+//         new CustomError("Invalid token, please login and check again", 400),
+//       );
+//     }
 
-    // TODO: check the error user_id
-    const user = await User.findById(decodeToken.user_id);
+//     const user = await User.findById(decodeToken.user_id);
 
-    if (!user) {
-      return next(new CustomError("Unauthorized, please login", 401));
-    }
+//     if (!user) {
+//       return next(new CustomError("Unauthorized, please login", 401));
+//     }
 
-    const accessToken = await user.generateAccessToken();
+//     const accessToken = await user.generateAccessToken();
 
-    res.status(200).json({
-      success: true,
-      message: "Access token refreshed successfully",
-      accessToken,
-    });
-  },
-);
+//     res.status(200).json({
+//       success: true,
+//       message: "Access token refreshed successfully",
+//       accessToken,
+//     });
+//   },
+// );
 
 // TODO:
-// test mail update after password update
+// 
 // generate refresh token (optional)
 // check auth route
 // Oauth route

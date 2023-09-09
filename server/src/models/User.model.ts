@@ -104,6 +104,9 @@ userSchema.methods = {
     return jwt.sign(
       { user_id: this._id, role: this.role },
       process.env.REFRESH_TOKEN_SECRET as string,
+      {
+        expiresIn:process.env.REFRESH_TOKEN_EXP
+      }
     );
   },
 

@@ -30,7 +30,7 @@ export interface IUser {
 
   comparePassword(password: string): boolean;
   generateAccessToken(): string;
-
+  generateRefreshToken(): string
   generatePasswordResetToken(): string;
 }
 
@@ -51,4 +51,10 @@ export interface IUserDetails {
   avatar: object;
   password: string;
   phoneNumber: string;
+}
+
+// interface for decoded token
+export interface IDecodedJwtPayload {
+  user_id: string;
+  role: string;
 }
