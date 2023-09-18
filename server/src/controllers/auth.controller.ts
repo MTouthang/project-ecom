@@ -7,6 +7,7 @@ import crypto from "crypto";
 
 import { mailHelper } from "../utils/mailHelper.utils";
 import {  IUserDetails } from "types";
+import passport from "passport";
 
 /**
  * @REGISTRATION
@@ -344,3 +345,26 @@ export const resetPassword = asyncHandler(
 // generate refresh token (optional)
 // check auth route
 // Oauth route
+
+
+/**
+ * @OAUTH init
+ * @ROUTE @get api/v1/user/google
+ * @returns 
+ * @ACCESS Public
+ */
+
+
+/**
+ * @OAUTH get response
+ * @ROUTE @get api/v1/user/google/callback
+ * @returns 
+ * @ACCESS Public
+ */
+
+/**
+ * @OAUTH logout
+ * @ROUTE @get api/v1/user/google/callback
+ * @returns 
+ * @ACCESS Public
+ */
