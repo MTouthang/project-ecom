@@ -348,11 +348,25 @@ export const resetPassword = asyncHandler(
 
 
 /**
- * @OAUTH init
+ * @OAUTH initiate
  * @ROUTE @get api/v1/user/google
  * @returns 
  * @ACCESS Public
  */
+export const initiateGoogleAuth = asyncHandler( async (req: Request, res: Response, next: NextFunction) => {
+  const  auth = await passport.authenticate('google', {
+    scope: ["email"]
+  })
+  if(!auth){
+    return next(new CustomError(" Failed to initiate the google Oauth", 500))
+  }
+
+  
+  res.status(200).json({
+    success: true, 
+    data: auth
+  })
+})
 
 
 /**
@@ -361,6 +375,20 @@ export const resetPassword = asyncHandler(
  * @returns 
  * @ACCESS Public
  */
+export const googleLogin = asyncHandler(async (req: Request, res:Response, next: NextFunction ) => {
+  const authLogin = await passport.authenticate('google', {
+    session: true
+  })
+
+  if(!authLogin) {
+    return next(new CustomError("Google Auth login failed", 500))
+  }
+
+  res.status(200).json({
+    success: true,
+    data: authLogin
+  })
+})
 
 /**
  * @OAUTH logout
@@ -368,3 +396,15 @@ export const resetPassword = asyncHandler(
  * @returns 
  * @ACCESS Public
  */
+export const googleLogout = asyncHandler( async (req: Request, res: Response, next: NextFunction) => {
+  req.logOut(function(err){
+    if(err) {
+      return next(new CustomError(`fail to logout ${err}`, 500))
+    }
+  })
+
+  res.status(200).json({
+    success: true,
+    message: "Logout successful",
+  })
+}) 

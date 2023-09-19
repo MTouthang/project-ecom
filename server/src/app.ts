@@ -3,7 +3,7 @@ import { config } from "dotenv";
 import morgan from "morgan";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import session from "express-session"
+
 import passport from "passport"
 import GoogleStrategy, { Strategy } from 'passport-google-oauth20'
 import expressSession, {SessionOptions} from "express-session"
@@ -65,8 +65,21 @@ passport.deserializeUser((obj, done) => {
   done(null, obj as object)
 })
 
+// express-session
+const sessionOptions : SessionOptions = {
+  resave: false,
+  saveUninitialized: true,
+  name: 'session',
+  secret: process.env.EXPRESS_SESSION_KEY!,
+  cookie: {
+    secure: true,
+    maxAge: 24 * 60 * 1000
+  }
+}
 
-
+app.use(expressSession(sessionOptions))
+app.use(passport.initialize())
+app.use(passport.session())
 
 
 
