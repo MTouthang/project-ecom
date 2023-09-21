@@ -5,8 +5,12 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 import passport from "passport"
-import GoogleStrategy, { Strategy } from 'passport-google-oauth20'
-import expressSession, {SessionOptions} from "express-session"
+
+import expressSession from "express-session"
+// Route --
+import authRoutes from "./routes/auth.route";
+import errorHandler from "./middlewares/errorHandler.middleware";
+
 
 
 
@@ -23,61 +27,6 @@ app.use(
   }),
 );
 
-// // google auth Type
-// interface IAuth_Option {
-//   callbackURL: string
-// }
-
-// // google auth options
-// const AUTH_OPTIONS = {
-//   callbackURL: '/auth/google/callback' as string,
-//   clientID: process.env.G_CLIENT_ID as string,
-//   clientSecret: process.env.G_CLIENT_SECRET as string
-// }
-
-// // verify google auth callback 
-// function verifyCallBack(accessToken:string, refreshToken: string, profile:object , done:) {
-//   done(null, profile)
-// }
-
-passport.use( new Strategy (
-  {
-    clientID: process.env.G_CLIENT_ID as string,
-    clientSecret: process.env.G_CLIENT_SECRET as string, 
-           callbackURL: "/auth/google/callback"
-  }, 
-  (_accessToken, _refreshToken, profile, done) => {
-      // get profile details 
-      console.log("google profile", profile)
-      done(null, profile)
-      // save it to the database 
-  })
-)
-
-// serialize and deserialize 
-passport.serializeUser((user, done) => {
-  console.log(user)
-  done(null, user as object)
-})
-
-passport.deserializeUser((obj, done) => {
-  console.log("objc", obj)
-  done(null, obj as object)
-})
-
-// express-session
-const sessionOptions : SessionOptions = {
-  resave: false,
-  saveUninitialized: true,
-  name: 'session',
-  secret: process.env.EXPRESS_SESSION_KEY!,
-  cookie: {
-    secure: true,
-    maxAge: 24 * 60 * 1000
-  }
-}
-
-app.use(expressSession(sessionOptions))
 app.use(passport.initialize())
 app.use(passport.session())
 
@@ -90,44 +39,38 @@ app.use(cors());
 app.use(morgan("dev"));
 
 // set up session middleware
+//  session middleware
 
+// 1. Uninitialised = false
+// It means that Your session is only Stored into your storage, when any of the Property is modified in req.session
+// 2. Uninitialised = true
+// It means that Your session will be stored into your storage Everytime for request. It will not depend on the modification of req.session.
+// 3. resave = true
+// It means when the modification is performed on the session it will re write the req.session.cookie object.
+// 4. resave = false
+// It will not rewrite the req.session.cookie object. the initial req.session.cookie remains as it is.
 
+app.use(
+  expressSession({
+    name: "project_ecom",
+    secret: process.env.EXPRESS_SESSION_KEY!,
+    // store: store,
+    resave: true,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 1000 * 24 * 60 * 60, // 24 hours in miliseconnds
+      httpOnly: true,
+      // sameSite: "Lax"
+      
+    }
+  })
+);
 
 // Initialize Passport.js
 app.use(passport.initialize())
 app.use(passport.session())
 
-
-
-// Configure Google OAuth2 Strategy
-passport.use(
-  new GoogleStrategy.Strategy(
-    {
-      clientID: process.env.G_CLIENT_ID as string,
-      clientSecret: process.env.G_CLIENT_SECRET as string,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL as string,
-    },
-    (accessToken, refreshToken, profile, done) => {
-      // Handle user authentication and store user data here
-      console.log(profile, done);
-    }
-  )
-);
-
-// serialize and deserialize user ( required for session support)
-passport.serializeUser((user, done) => {
-  done(null, user)
-})
-
-passport.deserializeUser((user: string, done) => {
-  done(null, user);
-});
-
 const apiVersion = "/api/v1";
-
-// Route --
-import authRoutes from "./routes/auth.route";
-import errorHandler from "./middlewares/errorHandler.middleware";
 
 
 
