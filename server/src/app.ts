@@ -3,20 +3,64 @@ import { config } from "dotenv";
 import morgan from "morgan";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-
-import passport from "passport"
-
+import helmet from "helmet"
+import passport from "passport";
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import expressSession from "express-session"
 // Route --
 import authRoutes from "./routes/auth.route";
 import errorHandler from "./middlewares/errorHandler.middleware";
 
 
-
-
+// db configuration 
 config();
 
+// passport-js
+passport.use(new GoogleStrategy({
+  clientID: process.env.G_CLIENT_ID!,
+  clientSecret: process.env.G_CLIENT_SECRET!,
+  callbackURL: "/api/v1/auth/google/callback"
+},
+async (accessToken, refreshToken, profile, cb) =>  {
+  // User.findOrCreate({ googleId: profile.id }, function (err, user) {
+  //   return cb(err, user);
+  // });
+  console.log("profile ---", profile)
+  
+  cb(null, profile)
+}
+));
+
+
 const app = express();
+
+
+// use helmet before using any middleware
+app.use(helmet())
+app.use(expressSession({
+  name: "googleSession",
+  secret: process.env.EXPRESS_SESSION_KEY!,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { 
+    secure: false, // set true only when using https 
+    maxAge: 1000 * 24 * 60 * 60, // 24 hours in miliseconnds
+    httpOnly: true,
+    sameSite:'lax'
+}
+}))
+app.use(passport.initialize()) // set-tup passport main passport session
+app.use(passport.session())
+
+// add user data to cookie or save the session to the cookie
+passport.serializeUser((user, done) =>{
+  done(null, user)
+})
+
+// load user data from the cookie or read the session from the cookie
+passport.deserializeUser((obj:object, done) => {
+  done(null, obj)
+})
 
 
 //built-in middleware
@@ -27,53 +71,14 @@ app.use(
   }),
 );
 
-app.use(passport.initialize())
-app.use(passport.session())
-
-
-
 
 // third party middleware
 app.use(cookieParser());
 app.use(cors());
 app.use(morgan("dev"));
 
-// set up session middleware
-//  session middleware
-
-// 1. Uninitialised = false
-// It means that Your session is only Stored into your storage, when any of the Property is modified in req.session
-// 2. Uninitialised = true
-// It means that Your session will be stored into your storage Everytime for request. It will not depend on the modification of req.session.
-// 3. resave = true
-// It means when the modification is performed on the session it will re write the req.session.cookie object.
-// 4. resave = false
-// It will not rewrite the req.session.cookie object. the initial req.session.cookie remains as it is.
-
-app.use(
-  expressSession({
-    name: "project_ecom",
-    secret: process.env.EXPRESS_SESSION_KEY!,
-    // store: store,
-    resave: true,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 1000 * 24 * 60 * 60, // 24 hours in miliseconnds
-      httpOnly: true,
-      // sameSite: "Lax"
-      
-    }
-  })
-);
-
-// Initialize Passport.js
-app.use(passport.initialize())
-app.use(passport.session())
 
 const apiVersion = "/api/v1";
-
-
-
 
 // health  check route
 app.get(`${apiVersion}/health-check`, (_req, res) => {

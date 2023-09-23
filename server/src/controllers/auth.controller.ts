@@ -1,13 +1,14 @@
 import { Response, Request, NextFunction } from "express";
 import asyncHandler from "../middlewares/asyncHandler.middleware";
-import User from "../models/User.model";
+
 import CustomError from "../utils/customError.utils";
 import crypto from "crypto";
 // import jwt from "jsonwebtoken";
 
 import { mailHelper } from "../utils/mailHelper.utils";
 import {  IUserDetails } from "types";
-import passport from "passport";
+import User from "../models/User.model";
+
 
 /**
  * @REGISTRATION
@@ -166,19 +167,32 @@ export const loginUser = asyncHandler(
  * @return Logged out successfully
  * @access public
  */
-export const userLogout = asyncHandler(async (_req: Request, res: Response) => {
-  res
-    .cookie("accessToken", null, {
+export const userLogout = asyncHandler(async (req: Request, res: Response) => {
+    console.log("req ---", req.cookies)
+    res
+    .cookie("accessToken", "", {
       // expires: new Date(Date.now()),
       httpOnly: true,
       secure: process.env.NODE_ENV === "production" ? true : false,
-      maxAge: 1,
+      maxAge: 0,
     })
-    .json({
+    res.json({
       success: true,
       message: "Logged out successfully",
     });
 });
+
+export const googleLogout = asyncHandler(async (req: Request, res: Response, next:NextFunction) => {
+  req.logOut(function (err){
+    if(err) {
+     console.log("errrror--", err)
+     next()
+    } 
+  }); // remove req.user and clears any logged in session
+  return res.redirect("/")
+}
+
+)
 
 /**
  * @FORGOTPASSWORD
@@ -298,6 +312,36 @@ export const resetPassword = asyncHandler(
     });
   },
 );
+
+/**
+ * @failure
+ * @ROUTE @GET api/v1/failure
+ * @returns failed to login with google 
+ * @ACCESS Public
+ */
+export const handleFailedLogin = asyncHandler(async(req: Request, res: Response ) => {
+  res.status(400).json({
+    success: false,
+    message: "failed to login with google"
+  })
+})
+
+/**
+ * @success
+ * @ROUTE @GET api/v1/success
+ * @returns Login Successfully with google
+ * @ACCESS private
+ */
+export const handleSuccessLogin = asyncHandler(async(req: Request, res: Response ) => {
+  res.status(200).json({
+    success: true,
+    message: "Login Successfully with google"
+  })
+})
+
+
+
+
 
 
 // optional
