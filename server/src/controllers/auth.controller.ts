@@ -26,7 +26,7 @@ export const registerUser = asyncHandler(
       "firstName",
       "email",
       "password",
-      "phoneNumber",
+  
     ];
 
     const missingFields = requiredFields.filter((field) => !req.body[field]);
@@ -168,7 +168,7 @@ export const loginUser = asyncHandler(
  * @access public
  */
 export const userLogout = asyncHandler(async (req: Request, res: Response) => {
-    console.log("req ---", req.cookies)
+  
     res
     .cookie("accessToken", "", {
       // expires: new Date(Date.now()),
@@ -183,13 +183,18 @@ export const userLogout = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const googleLogout = asyncHandler(async (req: Request, res: Response, next:NextFunction) => {
+  console.log("logout - ", req)
   req.logOut(function (err){
     if(err) {
      console.log("errrror--", err)
      next()
     } 
   }); // remove req.user and clears any logged in session
-  return res.redirect("/")
+  // return res.redirect("/")
+  res.status(200).json({
+    success: true,
+    message: 'User logged out successfully'
+  })
 }
 
 )
