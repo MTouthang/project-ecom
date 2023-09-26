@@ -5,31 +5,17 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet"
 import passport from "passport";
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+
 import expressSession from "express-session"
 // Route --
 import authRoutes from "./routes/auth.route";
 import errorHandler from "./middlewares/errorHandler.middleware";
+import { googleAuth } from "./middlewares/googleAuth";
 
 
 // db configuration 
 config();
-
-// passport-js
-passport.use(new GoogleStrategy({
-  clientID: process.env.G_CLIENT_ID!,
-  clientSecret: process.env.G_CLIENT_SECRET!,
-  callbackURL: "/api/v1/auth/google/callback"
-},
-async (accessToken, refreshToken, profile, cb) =>  {
-  // User.findOrCreate({ googleId: profile.id }, function (err, user) {
-  //   return cb(err, user);
-  // });
-  console.log("profile ---", profile)
-  
-  cb(null, profile)
-}
-));
+googleAuth()
 
 
 const app = express();
@@ -51,16 +37,6 @@ app.use(expressSession({
 }))
 app.use(passport.initialize()) // set-tup passport main passport session
 app.use(passport.session())
-
-// add user data to cookie or save the session to the cookie
-passport.serializeUser((user, done) =>{
-  done(null, user)
-})
-
-// load user data from the cookie or read the session from the cookie
-passport.deserializeUser((obj:object, done) => {
-  done(null, obj)
-})
 
 
 //built-in middleware
