@@ -19,6 +19,7 @@ import User from "../models/User.model";
 // TODO: check for unique name (optional)
 export const registerUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
+
     const { firstName, lastName, email, password, phoneNumber } = req.body;
 
     // check for missing fields
@@ -115,7 +116,8 @@ export const registerUser = asyncHandler(
  */
 export const loginUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { email, password } = req.body;
+    console.log("req - check for header", req.headers)
+    const { email, password } = req.body;                      
 
     // handle missing field
     if (!email) {
@@ -124,7 +126,7 @@ export const loginUser = asyncHandler(
 
     if (!password) {
       return next(new CustomError("Password is missing", 400));
-    }
+    }                                        
 
     // check for user
     const user = await User.findOne({ email }).select("+password");

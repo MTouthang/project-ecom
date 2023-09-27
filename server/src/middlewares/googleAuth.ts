@@ -44,7 +44,6 @@ export const googleAuth =() => {
           lastName,
           email,
           avatar,
-          created_at: new Date()
         })
 
         const result = await saveUserInfo.save({validateBeforeSave: false})
