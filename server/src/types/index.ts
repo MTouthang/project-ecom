@@ -19,7 +19,7 @@ export interface IUser {
 
   password: string | undefined;
   phoneNumber: string;
-  role: string;
+  role: number;
   avatar: {
     public_id: string;
     secure_url: string;
@@ -56,5 +56,5 @@ export interface IUserDetails {
 // interface for decoded token
 export interface IDecodedJwtPayload {
   user_id: string;
-  role: string;
+  role: number;
 }

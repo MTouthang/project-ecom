@@ -53,9 +53,9 @@ const userSchema = new Schema<IUser>(
     ],
 
     role: {
-      type: String,
+      type: Number,
       enum: [roleList.admin, roleList.user],
-      default: "USER",
+      default: roleList.user,
     },
     avatar: {
       public_id: {

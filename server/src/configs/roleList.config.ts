@@ -1,4 +1,5 @@
 export const roleList = {
-  admin: "ADMIN",
-  user: "USER",
+  admin: 101,
+  user: 102,
+  employee: 103
 };

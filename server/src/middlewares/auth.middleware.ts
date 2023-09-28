@@ -1,6 +1,8 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import asyncHandler from "./asyncHandler.middleware";
-import CustomError from "utils/customError.utils";
+import CustomError from "../utils/customError.utils";
+import { IDecodedJwtPayload } from "types";
+
 
 
 
@@ -19,11 +21,23 @@ export const isLoggedIn = asyncHandler( async ( req, res, next ) => {
   }
 
   // decode the token 
-  const decode: string | JwtPayload = await jwt.verify(token, process.env.JWT_SECRET!)
+  const decode = ( await jwt.verify(token, process.env.JWT_SECRET!)) as IDecodedJwtPayload
   if(!decode) {
     return next(new CustomError("Unauthorized, please login", 401))
-  }
+  } 
   req.user = decode
   next()
 
+})
+
+// authorize roles ---
+type IRoles = (number | undefined)[]
+// using rest parameters syntax to take infinite number of arguments 
+export const authorizeRoles = (...roles:IRoles ) => asyncHandler (async (req, res, next) => {
+  if(!roles.includes(req.user?.role)) {
+    return next(
+      new CustomError("Your not authorized to access this route ", 403)
+    )
+  }
+  next()
 })
