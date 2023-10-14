@@ -91,6 +91,7 @@ userSchema.methods = {
 
   // generating user secret access code -
   generateAccessToken: async function () {
+
     return jwt.sign(
       { user_id: this._id, role: this.role },
       process.env.JWT_SECRET as string,

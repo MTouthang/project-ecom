@@ -17,6 +17,7 @@ import {
 import passport from "passport";
 
 
+
 router.route("/user/new").post(registerUser);
 router.route("/user/login").post(loginUser);
 router.route("/user/logout").post(userLogout);
@@ -24,6 +25,7 @@ router.route("/user/forgotpassword").post(forgotPassword);
 router.route("/user/resetpassword/:token").post(resetPassword);
 router.route("/failure").get(handleFailedLogin)
 router.route("/success").get(handleSuccessLogin)
+
 
 
 // 2 google strategy initiator 

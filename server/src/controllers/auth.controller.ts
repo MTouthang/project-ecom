@@ -91,7 +91,7 @@ export const registerUser = asyncHandler(
 
     // send greetings
     await mailHelper(userData.email, subject, message);
-
+    // TODO: don't save cookies on register
     res.cookie("token", accessToken, {
       secure: process.env.NODE_ENV === "production" ? true : false,
       httpOnly: true,
@@ -117,6 +117,7 @@ export const registerUser = asyncHandler(
 export const loginUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     console.log("req - check for header", req.headers)
+    
     const { email, password } = req.body;                      
 
     // handle missing field
@@ -392,4 +393,3 @@ export const handleSuccessLogin = asyncHandler(async(req: Request, res: Response
 //     });
 //   },
 // );
-
