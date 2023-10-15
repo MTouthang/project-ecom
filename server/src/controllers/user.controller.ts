@@ -5,6 +5,8 @@ import CustomError from "../utils/customError.utils"
 import os from "os"
 import formidable from 'formidable'
 import cloudinary from "cloudinary"
+import { ObjectId } from "mongoose"
+import { mailHelper } from "../utils/mailHelper.utils"
 
 
 /**
@@ -50,11 +52,12 @@ export const getUserById = asyncHandler(async (req: Request, res: Response, next
   })
 })
 
+// TODO: fix fields update 
 /**
  * @UPDATE_USER
  * @ROUTE #POST {{URL}}/api/v1/users/id
  * @return single user with updated user
- * @ACCESS admin only
+ * @ACCESS private particular user
  */
 export const updateUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -136,3 +139,50 @@ export const updateUser = asyncHandler(
   
   },
 );
+
+/**
+ * @CHANGE_PASSWORD 
+ * @ROUTE #POST {{URL}}/api/v1/users/change-password
+ * @return password changed successfully + notify it via email 
+ * @ACCESS private logged in user only
+ */
+export const changePassword = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const {oldPassword, newPassword} = req.body
+  
+
+  interface userTypes {
+    user_id: ObjectId
+  }
+  const {user_id} = req.user as userTypes
+
+  if(!oldPassword || !newPassword){
+    return next(new CustomError("Old password and new password should be provided", 400))
+  }
+
+  const user = await User.findById(user_id).select("+password")
+
+  if(!(user && (await user.comparePassword(oldPassword)))) {
+    return next(new CustomError("Password is incorrect", 400))
+  }
+
+  user.password = newPassword
+  user.save()
+
+  try {
+    const message: string = "You account password is change successfully, Kindly reset if it is not done by you"
+    const subject: string = "Project Ecom password changed successfully"
+    await mailHelper(user.email, subject, message);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error:any) {
+    return next( new CustomError("error.message || Failed to send message",400))
+  }
+
+  user.password = undefined
+
+  res.status(200).json({
+    success: true,
+    message: "Password changed successfully"
+  })
+})
+
