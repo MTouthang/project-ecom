@@ -116,7 +116,7 @@ export const registerUser = asyncHandler(
  */
 export const loginUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    console.log("req - check for header", req.headers)
+    
     
     const { email, password } = req.body;                      
 
@@ -185,11 +185,12 @@ export const userLogout = asyncHandler(async (req: Request, res: Response) => {
     });
 });
 
+
 export const googleLogout = asyncHandler(async (req: Request, res: Response, next:NextFunction) => {
-  console.log("logout - ", req)
+
   req.logOut(function (err){
     if(err) {
-     console.log("errrror--", err)
+    
      next()
     } 
   }); // remove req.user and clears any logged in session
@@ -334,7 +335,8 @@ export const handleFailedLogin = asyncHandler(async(req: Request, res: Response 
   })
 })
 
-/**
+/** 
+ * TODO: send mail on successful login
  * @success
  * @ROUTE @GET api/v1/success
  * @returns Login Successfully with google
