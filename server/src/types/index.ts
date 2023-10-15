@@ -1,5 +1,5 @@
 import { Response, Request, NextFunction } from "express";
-import { Types } from "mongoose";
+import { ObjectId, Types } from "mongoose";
 
 // interface for custom Error
 export interface ICustomError extends Error {
@@ -13,6 +13,7 @@ export interface IAsyncHandlerFunc {
 
 // user model Interface
 export interface IUser {
+  _id: ObjectId,
   firstName: string;
   lastName: string;
   email: string;

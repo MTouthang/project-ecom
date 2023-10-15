@@ -7,8 +7,10 @@ import helmet from "helmet"
 import passport from "passport";
 
 import expressSession from "express-session"
+import cloudinary from "cloudinary"
 // Route --
 import authRoutes from "./routes/auth.route";
+import userRoutes from "./routes/user.route"
 import errorHandler from "./middlewares/errorHandler.middleware";
 import { googleAuth } from "./middlewares/googleAuth";
 
@@ -53,6 +55,12 @@ app.use(cookieParser());
 app.use(cors());
 app.use(morgan("dev"));
 
+cloudinary.v2.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 
 const apiVersion = "/api/v1";
 
@@ -64,6 +72,7 @@ app.get(`${apiVersion}/health-check`, (_req, res) => {
 // auth route -
 // error handler
 app.use(`${apiVersion}`, authRoutes);
+app.use(`${apiVersion}`, userRoutes)
 
 // catch all 404 route
 app.all(`${apiVersion}/*`, (_req, res) => {
