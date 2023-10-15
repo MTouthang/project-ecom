@@ -186,3 +186,36 @@ export const changePassword = asyncHandler(async (req: Request, res: Response, n
   })
 })
 
+
+/**
+ * TODO: send mail and notify the user , account has been deleted
+ * @DELETE_USER 
+ * @ROUTE #POST {{URL}}/api/v1/user/:userId/delete
+ * @return successfully delete user account and send mail
+ * @ACCESS private only admin
+ */
+export const deleteUser = asyncHandler(async (req:Request, res:Response, next: NextFunction) => {
+  const {userId} = req.params
+
+  const user = await User.findById(userId)
+
+  if(!user)  {
+    return next(new CustomError("Invalid user Id or User does not exist", 400))
+  }
+  // delete profile pic as well
+  if(user.avatar.public_id){
+    try {
+      await cloudinary.v2.uploader.destroy(user?.avatar?.public_id)
+    } catch (error){
+      return next(new CustomError("Image could nto be deleted", 400))
+    }
+  }
+
+   await User.findByIdAndDelete(userId)
+
+  res.status(200).json({
+    success: true,
+    message: 'user deleted successfully'
+  })
+
+})
