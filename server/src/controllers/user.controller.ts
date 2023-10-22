@@ -27,7 +27,7 @@ export const getUsers = asyncHandler( async (req:Request, res:Response, next:Nex
     if(search){
      query.firstName  = {$regex: search, $options: "i"}
     }
-    console.log(query)
+ 
     const PAGE: number = Number(page) || 1
     const LIMIT: number = Number(limit) || 5
 
