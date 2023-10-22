@@ -56,7 +56,7 @@ export interface IUserDetails {
 
 // interface for decoded token
 export interface IDecodedJwtPayload {
-  user_id: string;
+  _id: string;
   role: number;
 }
 
