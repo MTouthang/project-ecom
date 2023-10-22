@@ -17,8 +17,17 @@ import { IUser } from "types"
  */
 export const getUsers = asyncHandler( async (req:Request, res:Response, next:NextFunction) => {
 
-    const { page, limit} = req.query
+    const { page, limit, search} = req.query
 
+   interface queryI {
+     firstName?: object
+   }
+   const query: queryI = {}
+    
+    if(search){
+     query.firstName  = {$regex: search, $options: "i"}
+    }
+    console.log(query)
     const PAGE: number = Number(page) || 1
     const LIMIT: number = Number(limit) || 5
 
@@ -27,7 +36,7 @@ export const getUsers = asyncHandler( async (req:Request, res:Response, next:Nex
     
 
     // get total user 
-    const totalUser = await User.find().countDocuments()
+    const totalUser = await User.find(query).countDocuments()
 
     interface prevT{
       pageNumber: number,
@@ -62,9 +71,8 @@ export const getUsers = asyncHandler( async (req:Request, res:Response, next:Nex
 
     result.totalPages = Math.ceil(totalUser / LIMIT)
 
-    result.users = await User.find().skip(startIndex).limit(LIMIT)
+    result.users = await User.find(query).skip(startIndex).limit(LIMIT)
 
-    console.log(result)
 
 
     //TODO: return all user except the admin user
@@ -74,7 +82,7 @@ export const getUsers = asyncHandler( async (req:Request, res:Response, next:Nex
     }
      res.status(200).json({
       success: true,
-      message: result.users.length > 0 ? "Fetch users successfully7 fetched" : "No user found",
+      message: result.users.length > 0 ? "Fetch users successfully fetched" : "No user found",
       result
     })
 })
