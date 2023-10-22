@@ -4,7 +4,7 @@ import { authorizeRoles, isLoggedIn } from "../middlewares/auth.middleware";
 const router = Router()
 
 
-router.route("/users").get(getUsers)
+router.route("/users/").get(getUsers)
 router.route("/users/:_id").get(getUserById)
 router.route("/users/me").put( isLoggedIn,updateUser)
 // change password 

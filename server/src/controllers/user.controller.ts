@@ -16,17 +16,66 @@ import { IUser } from "types"
  * @ACCESS admin only
  */
 export const getUsers = asyncHandler( async (req:Request, res:Response, next:NextFunction) => {
-    const users = await User.find()
+
+    const { page, limit} = req.query
+
+    const PAGE: number = Number(page) || 1
+    const LIMIT: number = Number(limit) || 5
+
+    const startIndex = (PAGE  - 1 ) * LIMIT
+    const endIndex = PAGE * LIMIT
+    
+
+    // get total user 
+    const totalUser = await User.find().countDocuments()
+
+    interface prevT{
+      pageNumber: number,
+      limit: number
+    }
+    interface nextT{
+      pageNumber: number,
+      limit: number
+    }
+    interface resultT {
+      next?: nextT 
+      previous?: prevT,
+      totalPages?: number
+      users?: object[]  
+    }
+
+    const result: resultT = {}
+
+    if(endIndex < totalUser){
+      result.next = {
+        pageNumber: PAGE + 1,
+        limit: LIMIT
+    }
+    }
+
+    if(startIndex > 0) {
+      result.previous = {
+        pageNumber: PAGE - 1,
+        limit: LIMIT
+      }
+    }
+
+    result.totalPages = Math.ceil(totalUser / LIMIT)
+
+    result.users = await User.find().skip(startIndex).limit(LIMIT)
+
+    console.log(result)
+
 
     //TODO: return all user except the admin user
 
-    if(!users.length) {
+    if(!result.users.length) {
       return next( new CustomError("User not able to fetch at this moment!", 404))
     }
      res.status(200).json({
       success: true,
-      message: "User fetched successfully",
-      users
+      message: result.users.length > 0 ? "Fetch users successfully7 fetched" : "No user found",
+      result
     })
 })
 
