@@ -52,7 +52,7 @@ export const getUserById = asyncHandler(async (req: Request, res: Response, next
   })
 })
 
-// TODO: fix fields update 
+// TODO: check file size and make sure email is not updatable
 /**
  * @UPDATE_USER
  * @ROUTE #POST {{URL}}/api/v1/users/id
@@ -61,8 +61,61 @@ export const getUserById = asyncHandler(async (req: Request, res: Response, next
  */
 export const updateUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {_id} =req.user as IUser
-    const {body, files} = req
+    const {_id} =req.user as IUser 
+
+     interface expressFile {
+      name: string,
+      size: number,
+      data: Buffer,
+      tempFilePath: string
+    }
+
+    const {body, files} = req 
+    
+    const user = await User.findByIdAndUpdate (
+      _id,
+      {
+        $set: body,
+      }, 
+      {
+        new: true
+      }
+    )
+    if(!user){
+      return next(new CustomError("Error updating user, please try again", 400))
+    }
+
+    // TODO: double check if the limit size is working
+    if(files){
+      try {
+        await cloudinary.v2.uploader.destroy(user.avatar.public_id)
+        const incomingImage = files.userImage as expressFile
+
+        if(incomingImage){
+          const result = await cloudinary.v2.uploader.upload(
+            incomingImage.tempFilePath, 
+            {
+              folder: "ecom/users"
+            }
+          )
+
+          if(result){
+            user.avatar.public_id = result.public_id;
+            user.avatar.secure_url = result.secure_url
+          }
+        }
+
+      } catch (error) {
+        return next(new CustomError("Image could not be uploaded", 400))
+      }
+    }
+
+    await user.save()
+    res.status(200).json({
+      success: true, 
+      message: "User updated successfully",
+      user
+    })
   } 
 );
 

@@ -5,9 +5,9 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet"
 import passport from "passport";
-
 import expressSession from "express-session"
 import cloudinary from "cloudinary"
+import fileUpload from "express-fileupload"
 // Route --
 import authRoutes from "./routes/auth.route";
 import userRoutes from "./routes/user.route"
@@ -48,6 +48,15 @@ app.use(
     extended: true,
   }),
 );
+
+// express file upload config
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: "/tmp/",
+    limits: { fileSize: 5 * 1024 * 1024 }
+  })
+)
 
 
 // third party middleware

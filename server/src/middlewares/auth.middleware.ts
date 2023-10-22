@@ -22,8 +22,6 @@ export const isLoggedIn = asyncHandler( async ( req, res, next ) => {
     return next(new CustomError("Unauthorized, please login", 401))
   } 
   req.user = decode
-  
-  console.log(req.user)
 
   next()
 

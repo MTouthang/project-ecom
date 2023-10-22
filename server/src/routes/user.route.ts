@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { changePassword, deleteUser, getUserById, getUsers,  } from "../controllers/user.controller";
+import { changePassword, deleteUser, getUserById, getUsers, updateUser,  } from "../controllers/user.controller";
 import { authorizeRoles, isLoggedIn } from "../middlewares/auth.middleware";
 const router = Router()
 
 
 router.route("/users").get(getUsers)
 router.route("/users/:_id").get(getUserById)
-router.route("/users/me").put()
+router.route("/users/me").put( isLoggedIn,updateUser)
 // change password 
 router.route("/user/change-password").put(isLoggedIn, changePassword)
 // delete user 
