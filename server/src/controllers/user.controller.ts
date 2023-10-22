@@ -59,11 +59,12 @@ export const getUserById = asyncHandler(async (req: Request, res: Response, next
  * @return single user with updated user
  * @ACCESS private particular user
  */
-// export const updateUser = asyncHandler(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     const {_id} =req.user as IUser
-//   } 
-// );
+export const updateUser = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const {_id} =req.user as IUser
+    const {body, files} = req
+  } 
+);
 
 /**
  * @CHANGE_PASSWORD 
