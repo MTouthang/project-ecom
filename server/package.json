@@ -6,6 +6,8 @@
   "scripts": {
     "build": "npx tsc",
     "dev": "npx nodemon",
+    "build:start": "npm run build && npm run start:prod",
+
     "lint": "eslint --ignore-path .eslintignore \"src/**/*.ts\" --fix",
     "lint:check": "eslint --ignore-path .eslintignore \"src/**/*.ts\"",
     "prettier": "prettier --write \"src/**/*.ts\"",
