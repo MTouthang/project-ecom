@@ -1,11 +1,10 @@
 # Project Ecom an E-commerce Project
 
 ## Tasks
-# TODO List
 
 Below is a list of tasks and features for this project. As you complete each task, please check the corresponding box to keep track of your progress.
 
-- [ ] User Authentication
+- [ ] User Authentication - progress
 - [ ] User Route
 - [ ] Product Route
 - [ ] Cart Route
