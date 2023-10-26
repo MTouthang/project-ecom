@@ -60,3 +60,15 @@ export interface IDecodedJwtPayload {
   role: number;
 }
 
+
+// interface for Address
+export interface IAddress {
+  name: string,
+  phoneNumber: string,
+  houseNumber: string,
+  state: string,
+  city: string,
+  pinCode?: string
+  landMark?: string,
+  isPrimary?: boolean
+}
