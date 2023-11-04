@@ -54,7 +54,7 @@ const userSchema = new Schema<IUser>(
 
     role: {
       type: Number,
-      enum: [roleList.admin, roleList.user],
+      enum: [roleList.admin, roleList.user, roleList.employee],
       default: roleList.user,
     },
     avatar: {
