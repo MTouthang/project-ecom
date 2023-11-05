@@ -72,3 +72,27 @@ export interface IAddress {
   landMark?: string,
   isPrimary?: boolean
 }
+// product types 
+export interface IProduct {
+  _id: ObjectId
+  title: string
+  subTitle: string
+  description : string
+  brand: string 
+  images: [
+    image : {
+      public_id : string 
+      secure_url : string
+    }
+  ],
+  originalPrice : number
+  discountPrice: number 
+  quantity: number 
+  stock: boolean 
+  numberOfUnitSold: number
+  tag: string
+  category: Types.ObjectId
+  createdBy: Types.ObjectId
+  updatedAt: Date 
+  createdAt: Date 
+}
