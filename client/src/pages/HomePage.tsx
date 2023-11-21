@@ -9,7 +9,7 @@ const Homepage: React.FC = () => {
         <p> Login </p>
       </Link>
 
-      <Link to={"/singUp"}>
+      <Link to={"/signup"}>
         <p> SignUp </p>
       </Link>
       
